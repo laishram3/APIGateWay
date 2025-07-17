@@ -35,7 +35,7 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
 
 resource "aws_lambda_function" "api_lambda" {
   function_name = "MyLambdaFunction"
-  filename      = "${path.module}/lambda.zip"
+  filename      = "${path.module}/../lambda.zip"
   handler       = "main.lambda_handler"
   runtime       = "python3.10"
   role          = aws_iam_role.lambda_exec_role.arn
