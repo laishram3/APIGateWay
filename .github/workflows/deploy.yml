@@ -43,3 +43,9 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+          
+      - name: Rollback if deployment fails
+        if: ${{ failure() }}
+        run: |
+          echo "Deployment failed. Rolling back..."
+          terraform destroy -auto-approve
