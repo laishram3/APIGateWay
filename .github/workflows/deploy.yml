@@ -49,3 +49,4 @@ jobs:
         run: |
           echo "Deployment failed. Rolling back..."
           terraform destroy -auto-approve
+        working-directory: terraform
