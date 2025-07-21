@@ -41,25 +41,6 @@ resource "aws_lambda_function" "api_lambda" {
   role          = aws_iam_role.lambda_exec_role.arn
 }
 
-resource "aws_lambda_permission" "lambda_s3_invoke_perm" {
-  statement_id   = "AllowS3Invoke"
-  action         = "lambda:InvokeFunction"
-  function_name  = "MyLambdaFunction"
-  principal      = "s3.amazonaws.com"
-  source_account = "595374584249"
-  # source_arn     = aws_s3_bucket.my_s3_bucket.arn
-  source_arn = "arn:aws:s3:::demo.s3.bucketmain"
-}
-
-resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket     = "demo.s3.bucketmain"
-  depends_on = [aws_lambda_permission.lambda_s3_invoke_perm]
-
-  lambda_function {
-    lambda_function_arn = "arn:aws:lambda:us-east-1:595374584249:function:MyLambdaFunction"
-    events              = ["s3:ObjectCreated:*"]
-  }
-}
 
 
 resource "aws_apigatewayv2_api" "http_api" {
@@ -79,13 +60,18 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
 resource "aws_apigatewayv2_route" "default_route" {
   api_id    = aws_apigatewayv2_api.http_api.id
   route_key = "GET /"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
-  authorization_type = "AWS_IAM"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}" 
 }
 
 resource "aws_apigatewayv2_stage" "default_stage" {
   api_id      = aws_apigatewayv2_api.http_api.id
   name        = "$default"
+  auto_deploy = true
+}
+
+resource "aws_apigatewayv2_stage" "dev" {
+  api_id      = aws_apigatewayv2_api.http_api.id
+  name        = "dev"
   auto_deploy = true
 }
 
