@@ -41,6 +41,27 @@ resource "aws_lambda_function" "api_lambda" {
   role          = aws_iam_role.lambda_exec_role.arn
 }
 
+resource "aws_lambda_permission" "lambda_s3_invoke_perm" {
+  statement_id   = "AllowS3Invoke"
+  action         = "lambda:InvokeFunction"
+  function_name  = "MyLambdaFunction"
+  principal      = "s3.amazonaws.com"
+  source_account = "595374584249"
+  # source_arn     = aws_s3_bucket.my_s3_bucket.arn
+  source_arn = "arn:aws:s3:::demo.s3.bucketmain"
+}
+
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket     = "demo.s3.bucketmain"
+  depends_on = [aws_lambda_permission.lambda_s3_invoke_perm]
+
+  lambda_function {
+    lambda_function_arn = "arn:aws:lambda:us-east-1:595374584249:function:demo.s3.bucketmain"
+    events              = ["s3:ObjectCreated:*"]
+  }
+}
+
+
 resource "aws_apigatewayv2_api" "http_api" {
   name          = "MyHttpApi"
   protocol_type = "HTTP"
