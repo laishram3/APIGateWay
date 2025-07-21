@@ -56,7 +56,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   depends_on = [aws_lambda_permission.lambda_s3_invoke_perm]
 
   lambda_function {
-    lambda_function_arn = "arn:aws:lambda:us-east-1:595374584249:function:demo.s3.bucketmain"
+    lambda_function_arn = "arn:aws:lambda:us-east-1:595374584249:function:MyLambdaFunction"
     events              = ["s3:ObjectCreated:*"]
   }
 }
