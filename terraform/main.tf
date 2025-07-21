@@ -63,17 +63,30 @@ resource "aws_apigatewayv2_route" "default_route" {
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}" 
 }
 
+resource "aws_cloudwatch_log_group" "http_api_logs" {
+  name              = "/aws/apigateway/http-api-access"
+  retention_in_days = 14
+}
+
 resource "aws_apigatewayv2_stage" "default_stage" {
   api_id      = aws_apigatewayv2_api.http_api.id
   name        = "$default"
   auto_deploy = true
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.http_api_logs.arn
+    format = jsonencode({
+      requestId     : "$context.requestId",
+      sourceIp      : "$context.identity.sourceIp",
+      requestTime   : "$context.requestTime",
+      httpMethod    : "$context.httpMethod",
+      path          : "$context.path",
+      status        : "$context.status",
+      protocol      : "$context.protocol",
+      responseLength: "$context.responseLength"
+    })
+  }
 }
 
-# resource "aws_apigatewayv2_stage" "dev" {
-#   api_id      = aws_apigatewayv2_api.http_api.id
-#   name        = "dev"
-#   auto_deploy = true
-# }
 
 resource "aws_lambda_permission" "api_gateway" {
   statement_id  = "AllowAPIGatewayInvoke"
@@ -82,6 +95,7 @@ resource "aws_lambda_permission" "api_gateway" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
 }
+
 
 output "api_endpoint" {
   value = aws_apigatewayv2_api.http_api.api_endpoint
