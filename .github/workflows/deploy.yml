@@ -45,7 +45,7 @@ jobs:
           aws-region: us-east-1
           
       - name: Rollback if deployment fails
-        if: ${{ failure() }}
+        if: failure()
         run: |
           echo "Deployment failed. Rolling back..."
           terraform destroy -auto-approve
