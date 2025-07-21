@@ -69,11 +69,11 @@ resource "aws_apigatewayv2_stage" "default_stage" {
   auto_deploy = true
 }
 
-resource "aws_apigatewayv2_stage" "dev" {
-  api_id      = aws_apigatewayv2_api.http_api.id
-  name        = "dev"
-  auto_deploy = true
-}
+# resource "aws_apigatewayv2_stage" "dev" {
+#   api_id      = aws_apigatewayv2_api.http_api.id
+#   name        = "dev"
+#   auto_deploy = true
+# }
 
 resource "aws_lambda_permission" "api_gateway" {
   statement_id  = "AllowAPIGatewayInvoke"
